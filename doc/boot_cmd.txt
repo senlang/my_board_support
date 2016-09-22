@@ -1,0 +1,206 @@
+
+
+U-Boot 2016.05-00230-g1ed0cec-dirty (Aug 06 2016 - 14:56:38 +0800)
+
+CPU: 66AK2Hx SR2.0
+I2C:   ready
+DRAM:  DDR3A Speed will be configured for 1600 Operation.
+Detected SO-DIMM [18KSF1G72HZ-1G6E2 ]
+DDR3 speed 1600
+DRAM: 8 GiB (includes reported below)
+
+Clear entire DDR3 memory to enable ECC
+2 GiB
+NAND:  512 MiB
+Net:   eth0: netcp@2000000
+Hit any key to stop autoboot:  0 
+=> 
+=> 
+=> 
+=> 
+=> printenv
+addr_mon=0x0c5f0000
+addr_secdb_key=0xc000000
+addr_ubi=0x82000000
+arch=arm
+args_all=setenv bootargs console=ttyS0,115200n8 rootwait=1
+args_net=setenv bootargs ${bootargs} rootfstype=nfs root=/dev/nfs rw nfsroot=${serverip}:${nfs_root},${nfs_options} ip=dhcp
+args_ramfs=setenv bootargs ${bootargs} rdinit=/sbin/init rw root=/dev/ram0 initrd=0x808080000,80M
+args_ubi=setenv bootargs ${bootargs} rootfstype=ubifs root=ubi0:rootfs rootflags=sync rw ubi.mtd=ubifs,2048
+baudrate=115200
+board=ks2_evm
+board_name=ks2_evm
+boot=ubi
+bootcmd=run init_${boot} init_fw_rd_${boot} get_fdt_${boot} get_mon_${boot} get_kern_${boot} run_mon run_kern
+bootdelay=2
+bootdir=/boot
+bootm_size=0x10000000
+burn_ubi=nand erase.part ubifs; nand write ${addr_ubi} ubifs ${filesize}
+burn_uboot_nand=nand erase 0 0x100000; nand write ${loadaddr} 0 ${filesize}
+burn_uboot_spi=sf probe; sf erase 0 0x90000; sf write ${loadaddr} 0 ${filesize}
+cpu=armv7
+ethaddr=98:7b:f3:3c:bc:d6
+fdt_addr_r=0x88000000
+fdtaddr=0x88000000
+fdtcontroladdr=feeeafa0
+get_fdt_net=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}
+get_fdt_nfs=nfs ${fdtaddr} ${nfs_root}/boot/${name_fdt}
+get_fdt_ramfs=dhcp ${fdtaddr} ${tftp_root}/${name_fdt}
+get_fdt_ubi=ubifsload ${fdtaddr} ${bootdir}/${name_fdt}
+get_fs_ramfs=dhcp ${rdaddr} ${tftp_root}/${name_fs}
+get_kern_net=dhcp ${loadaddr} ${tftp_root}/${name_kern}
+get_kern_nfs=nfs ${loadaddr} ${nfs_root}/boot/${name_kern}
+get_kern_ramfs=dhcp ${loadaddr} ${tftp_root}/${name_kern}
+get_kern_ubi=ubifsload ${loadaddr} ${bootdir}/${name_kern}
+get_mon_net=dhcp ${addr_mon} ${tftp_root}/${name_mon}
+get_mon_nfs=nfs ${addr_mon} ${nfs_root}/boot/${name_mon}
+get_mon_ramfs=dhcp ${addr_mon} ${tftp_root}/${name_mon}
+get_mon_ubi=ubifsload ${addr_mon} ${bootdir}/${name_mon}
+get_ubi_net=dhcp ${addr_ubi} ${tftp_root}/${name_ubi}
+get_ubi_nfs=nfs ${addr_ubi} ${nfs_root}/boot/${name_ubi}
+get_uboot_net=dhcp ${loadaddr} ${tftp_root}/${name_uboot}
+get_uboot_nfs=nfs ${loadaddr} ${nfs_root}/boot/${name_uboot}
+init_fw_rd_net=dhcp ${rdaddr} ${tftp_root}/${name_fw_rd}; run set_rd_spec
+init_fw_rd_ramfs=setenv rd_spec -
+init_fw_rd_ubi=ubifsload ${rdaddr} ${bootdir}/${name_fw_rd}; run set_rd_spec
+init_net=run args_all args_net
+init_nfs=setenv autoload no; dhcp; run args_all args_net
+init_ramfs=run args_all args_ramfs get_fs_ramfs
+init_ubi=run args_all args_ubi; ubi part ubifs; ubifsmount ubi:rootfs;
+ipaddr=192.168.5.21
+kernel_addr_r=0x82000000
+loadaddr=0x82000000
+mem_lpae=1
+mem_reserve=512M
+mtdparts=mtdparts=davinci_nand.0:1024k(bootloader)ro,512k(params)ro,-(ubifs)
+name_fdt=keystone-k2hk-evm.dtb
+name_fs=arago-console-image-k2hk-evm.cpio.gz
+name_fw_rd=k2-fw-initrd.cpio.gz
+name_kern=zImage
+name_mon=skern-k2hk.bin
+name_ubi=k2hk-evm-ubifs.ubi
+name_uboot=u-boot-spi-k2hk-evm.gph
+nfs_options=v3,tcp,rsize=4096,wsize=4096
+nfs_root=/export
+no_post=1
+pxefile_addr_r=0x80100000
+ramdisk_addr_r=0x88080000
+rdaddr=0x88080000
+run_kern=bootz ${loadaddr} ${rd_spec} ${fdtaddr}
+run_mon=mon_install ${addr_mon}
+scriptaddr=0x80000000
+serverip=192.168.5.28
+set_rd_spec=setenv rd_spec ${rdaddr}:${filesize}
+soc=keystone
+stderr=serial@02530c00
+stdin=serial@02530c00
+stdout=serial@02530c00
+tftp_root=/
+vendor=ti
+ver=U-Boot 2016.05-00230-g1ed0cec-dirty (Aug 06 2016 - 14:56:38 +0800)
+
+Environment size: 3386/262140 bytes
+=> -help
+Unknown command '-help' - try 'help'
+=> help
+?       - alias for 'help'
+askenv  - get environment variables from stdin
+base    - print or set address offset
+bdinfo  - print Board Info structure
+boot    - boot default, i.e., run 'bootcmd'
+bootd   - boot default, i.e., run 'bootcmd'
+bootefi - Boots an EFI payload from memory
+
+bootelf - Boot from an ELF image in memory
+bootm   - boot application image from memory
+bootp   - boot image via network using BOOTP/TFTP protocol
+bootvx  - Boot vxWorks from an ELF image
+bootz   - boot Linux zImage image from memory
+chpart  - change active partition
+cmp     - memory compare
+coninfo - print console devices and information
+cp      - memory copy
+crc32   - checksum calculation
+ddr     - DDR3 test
+dhcp    - boot image via network using DHCP/TFTP protocol
+dm      - Driver model low level access
+echo    - echo args to console
+editenv - edit environment variable
+eeprom  - EEPROM sub-system
+env     - environment handling commands
+exit    - exit script
+ext2load- load binary file from a Ext2 filesystem
+ext2ls  - list files in a directory (default /)
+ext4load- load binary file from a Ext4 filesystem
+ext4ls  - list files in a directory (default /)
+ext4size- determine a file's size
+ext4write- create a file in the root directory
+false   - do nothing, unsuccessfully
+fatinfo - print information about filesystem
+fatload - load binary file from a dos filesystem
+fatls   - list files in a directory (default /)
+fatsize - determine a file's size
+fatwrite- write file into a dos filesystem
+fdt     - flattened device tree utility commands
+fstype  - Look up a filesystem type
+getclk  - get clock rate
+go      - start application at address 'addr'
+help    - print command description/usage
+i2c     - I2C sub-system
+iminfo  - print header information for application image
+imxtract- extract a part of a multi-image
+itest   - return true/false on integer compare
+load    - load binary file from a filesystem
+loadb   - load binary file over serial line (kermit mode)
+loads   - load S-Record file over serial line
+loadx   - load binary file over serial line (xmodem mode)
+loady   - load binary file over serial line (ymodem mode)
+loop    - infinite loop on address range
+ls      - list files in a directory (default /)
+md      - memory display
+mdc     - memory display cyclic
+mdio    - MDIO utility commands
+mii     - MII utility commands
+mm      - memory modify (auto-incrementing address)
+mon_install- Install boot kernel at 'addr'
+mon_power- Power On/Off secondary core
+mtdparts- define flash/nand partitions
+mw      - memory write (fill)
+mwc     - memory write cyclic
+nand    - NAND sub-system
+nboot   - boot from NAND device
+nfs     - boot image via network using NFS protocol
+nm      - memory modify (constant address)
+part    - disk partition related commands
+ping    - send ICMP ECHO_REQUEST to network host
+pllset  - set pll multiplier and pre divider
+poweroff- Perform POWEROFF of the device
+printenv- print environment variables
+psc     - <enable/disable psc module os disable domain>
+pxe     - commands to get and boot from pxe files
+reset   - Perform RESET of the CPU
+run     - run commands in an environment variable
+save    - save file to a filesystem
+saveenv - save environment variables to persistent storage
+saves   - save S-Record file over serial line
+setenv  - set environment variables
+sf      - SPI flash sub-system
+showvar - print local hushshell variables
+size    - determine a file's size
+sleep   - delay execution for some time
+source  - run script from memory
+spl     - SPL configuration
+sspi    - SPI utility command
+sysboot - command to get and boot from syslinux files
+test    - minimal test like /bin/sh
+tftpboot- boot image via network using TFTP protocol
+true    - do nothing, successfully
+ubi     - ubi commands
+ubifsload- load file from an UBIFS filesystem
+ubifsls - list files in a directory
+ubifsmount- mount UBIFS volume
+ubifsumount- unmount UBIFS volume
+usb     - USB sub-system
+usbboot - boot from USB device
+version - print monitor, compiler and linker version
+=> 
