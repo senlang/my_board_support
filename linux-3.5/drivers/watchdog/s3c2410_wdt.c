@@ -352,6 +352,8 @@ static int __devinit s3c2410wdt_probe(struct platform_device *pdev)
 	DBG("probe: mapped wdt_base=%p\n", wdt_base);
 
 	wdt_clock = clk_get(&pdev->dev, "watchdog");
+	printf("wdt_clock = %p, rate=%d, id = %d\n", wdt_clock, wdt_clock->rate, wdt_clock->id);
+	
 	if (IS_ERR(wdt_clock)) {
 		dev_err(dev, "failed to find watchdog clock source\n");
 		ret = PTR_ERR(wdt_clock);

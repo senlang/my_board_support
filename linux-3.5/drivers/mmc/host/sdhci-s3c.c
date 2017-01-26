@@ -198,9 +198,9 @@ static void sdhci_s3c_set_clock(struct sdhci_host *host, unsigned int clock)
 		}
 	}
 
-	dev_dbg(&ourhost->pdev->dev,
-		"selected source %d, clock %d, delta %d\n",
-		 best_src, clock, best);
+	//dev_dbg(&ourhost->pdev->dev,
+	//	"selected source %d, clock %d, delta %d\n",
+	//	 best_src, clock, best);
 
 	/* select the new clock source */
 

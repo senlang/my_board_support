@@ -159,8 +159,8 @@ dma_addr_t iovmm_map(struct device *dev, struct scatterlist *sg, off_t offset,
 
 	spin_unlock(&vmm->lock);
 
-	dev_dbg(dev, "IOVMM: Allocated VM region @ %#x/%#X bytes.\n",
-					region->start, region->size);
+	//dev_dbg(dev, "IOVMM: Allocated VM region @ %#x/%#X bytes.\n",
+	//				region->start, region->size);
 
 	return region->start;
 
@@ -205,8 +205,8 @@ void iovmm_unmap(struct device *dev, dma_addr_t iova)
 	gen_pool_free(vmm->vmm_pool, region->start, region->size);
 
 	WARN_ON(unmapped_size != region->size);
-	dev_dbg(dev, "IOVMM: Unmapped %#x bytes from %#x.\n",
-					unmapped_size, region->start);
+	//dev_dbg(dev, "IOVMM: Unmapped %#x bytes from %#x.\n",
+	//				unmapped_size, region->start);
 
 	kfree(region);
 }

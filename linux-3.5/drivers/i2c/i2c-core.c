@@ -836,6 +836,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
 {
 	int res = 0;
 
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
+
 	/* Can't register until after driver model init */
 	if (unlikely(WARN_ON(!i2c_bus_type.p))) {
 		res = -EAGAIN;
@@ -1153,6 +1155,10 @@ int i2c_register_driver(struct module *owner, struct i2c_driver *driver)
 	/* Can't register until after driver model init */
 	if (unlikely(WARN_ON(!i2c_bus_type.p)))
 		return -EAGAIN;
+	
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
+	printk("I2C Driver name[%s]\n",driver->driver.name);
+
 
 	/* add the driver to the list of i2c drivers in the driver core */
 	driver->driver.owner = owner;
@@ -1344,6 +1350,12 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 	 *    one (discarding status on the second message) or errno
 	 *    (discarding status on the first one).
 	 */
+	 
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
+	printk("master_xfer[%d] %c, addr=0x%02x, "
+					"len=%d%s\n", ret, (msgs[ret].flags & I2C_M_RD)
+					? 'R' : 'W', msgs[ret].addr, msgs[ret].len,
+					(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
 
 	if (adap->algo->master_xfer) {
 #ifdef DEBUG
@@ -1401,6 +1413,8 @@ int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
 	msg.flags = client->flags & I2C_M_TEN;
 	msg.len = count;
 	msg.buf = (char *)buf;
+	
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
 
 	ret = i2c_transfer(adap, &msg, 1);
 
@@ -1431,6 +1445,7 @@ int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
 	msg.flags |= I2C_M_RD;
 	msg.len = count;
 	msg.buf = buf;
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
 
 	ret = i2c_transfer(adap, &msg, 1);
 

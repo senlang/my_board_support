@@ -1,0 +1,5 @@
+config LED_DEMO
+	tristate "Android Led Demo"
+	default n
+	help
+	This is the led demo for Android system.

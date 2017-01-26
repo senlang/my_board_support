@@ -960,7 +960,7 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
 	unsigned long iicon = S3C2410_IICCON_IRQEN | S3C2410_IICCON_ACKEN;
 	struct s3c2410_platform_i2c *pdata;
 	unsigned int freq;
-
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
 	/* get the plafrom data */
 
 	pdata = i2c->pdata;
@@ -985,6 +985,8 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
 
 	dev_info(i2c->dev, "bus frequency set to %d KHz\n", freq);
 	dev_dbg(i2c->dev, "S3C2410_IICCON=0x%02lx\n", iicon);
+	
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
 
 	return 0;
 }
@@ -1029,6 +1031,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
 	struct resource *res;
 	int ret;
 
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
+	
 	if (!pdev->dev.of_node) {
 		pdata = pdev->dev.platform_data;
 		if (!pdata) {
@@ -1122,13 +1126,13 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
 	}
 
 	/* initialise the i2c controller */
-
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
 	ret = s3c24xx_i2c_init(i2c);
 	if (ret != 0) {
 		dev_err(&pdev->dev, "I2C controller init failed\n");
 		goto err_iomap;
 	}
-
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
 	/* find the IRQ for this unit (note, this relies on the init call to
 	 * ensure no current IRQs pending
 	 */
@@ -1285,6 +1289,7 @@ static struct platform_driver s3c24xx_i2c_driver = {
 
 static int __init i2c_adap_s3c_init(void)
 {
+	printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
 	return platform_driver_register(&s3c24xx_i2c_driver);
 }
 subsys_initcall(i2c_adap_s3c_init);

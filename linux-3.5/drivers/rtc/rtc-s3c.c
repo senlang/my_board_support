@@ -470,6 +470,7 @@ static int __devinit s3c_rtc_probe(struct platform_device *pdev)
 	int tmp;
 
 	pr_debug("%s: probe=%p\n", __func__, pdev);
+	printk("%s: probe=%p\n", __func__, pdev);
 
 	/* find the IRQs */
 
