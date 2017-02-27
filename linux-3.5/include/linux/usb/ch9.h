@@ -340,19 +340,19 @@ struct usb_string_descriptor {
  */
 
 /*-------------------------------------------------------------------------*/
-
+//usb接口描述符，用于描述接口本身的信息.一个接口可以有多个设置，不同的设置接口描述符有不同
 /* USB_DT_INTERFACE: Interface descriptor */
 struct usb_interface_descriptor {
-	__u8  bLength;
-	__u8  bDescriptorType;
+	__u8  bLength;				//描述符的字节长度
+	__u8  bDescriptorType;		//描述符类型，USB_DT_INTERFACE
 
-	__u8  bInterfaceNumber;
-	__u8  bAlternateSetting;
-	__u8  bNumEndpoints;
-	__u8  bInterfaceClass;
-	__u8  bInterfaceSubClass;
-	__u8  bInterfaceProtocol;
-	__u8  iInterface;
+	__u8  bInterfaceNumber;		//接口号，每个设置可以包含的接口数，作为索引
+	__u8  bAlternateSetting;	//接口所使用的是哪个设置，默认使用的是0号设置
+	__u8  bNumEndpoints;		//接口拥有的端点数，不包括0号端点
+	__u8  bInterfaceClass;		//usb设备所属的类、子类、协议
+	__u8  bInterfaceSubClass;	//
+	__u8  bInterfaceProtocol;	//
+	__u8  iInterface;			//接口对应的字符串描述符索引值
 } __attribute__ ((packed));
 
 #define USB_DT_INTERFACE_SIZE		9
@@ -362,18 +362,20 @@ struct usb_interface_descriptor {
 /* USB_DT_ENDPOINT: Endpoint descriptor */
 struct usb_endpoint_descriptor {
 	__u8  bLength;
-	__u8  bDescriptorType;
+	__u8  bDescriptorType;		//USB_DT_ENDPOINT
 
-	__u8  bEndpointAddress;
-	__u8  bmAttributes;
-	__le16 wMaxPacketSize;
-	__u8  bInterval;
+	__u8  bEndpointAddress;		//bit7端点方向,地址,bit0~3端点号
+	__u8  bmAttributes;			//bit01表示transfer type,00控制,01等时,10批量,11中断
+	__le16 wMaxPacketSize;		//端点一次可以处理的最大字节数
+	__u8  bInterval;			//usb总线host轮询时间间隔
 
 	/* NOTE:  these two are _only_ in audio endpoints. */
 	/* use USB_DT_ENDPOINT*_SIZE in bLength, not sizeof. */
 	__u8  bRefresh;
 	__u8  bSynchAddress;
 } __attribute__ ((packed));
+//告诉编译器，这个结构的元素都是以1字节对齐，不需要添加填充位
+
 
 #define USB_DT_ENDPOINT_SIZE		7
 #define USB_DT_ENDPOINT_AUDIO_SIZE	9	/* Audio extension */
@@ -928,13 +930,13 @@ enum usb_device_state {
 	USB_STATE_NOTATTACHED = 0,
 
 	/* chapter 9 and authentication (wireless) device states */
-	USB_STATE_ATTACHED,
-	USB_STATE_POWERED,			/* wired */
+	USB_STATE_ATTACHED,			//表示设备已经连接到了USB接口上，是HUB检测到设备时的初始状态
+	USB_STATE_POWERED,			/* wired */	//上电
 	USB_STATE_RECONNECTING,			/* auth */
 	USB_STATE_UNAUTHENTICATED,		/* auth */
-	USB_STATE_DEFAULT,			/* limited function */
-	USB_STATE_ADDRESS,
-	USB_STATE_CONFIGURED,			/* most functions */
+	USB_STATE_DEFAULT,			/* limited function */	//默认状态,在上电之后设备必须收到一个复位信号并成功复位后才能使用默认的地址回应主机发过来的设备和配置描述符的请求
+	USB_STATE_ADDRESS,									//表示主机分配了一个唯一的地址给设备。此时设备可以使用默认管道响应主机的请求
+	USB_STATE_CONFIGURED,			/* most functions */	//表示设备已经被主机配置过了，此时设备可以使用默认管道响应主机的请求
 
 	USB_STATE_SUSPENDED
 

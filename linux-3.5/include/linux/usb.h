@@ -64,9 +64,9 @@ struct ep_device;
 struct usb_host_endpoint {
 	struct usb_endpoint_descriptor		desc;
 	struct usb_ss_ep_comp_descriptor	ss_ep_comp;
-	struct list_head		urb_list;
-	void				*hcpriv;
-	struct ep_device		*ep_dev;	/* For sysfs info */
+	struct list_head		urb_list;		//端点处理的urb队列,usb通讯主角，包含执行usb传输所需的所有信息，是内核对usb传输数据的封装。创建urb->usb core->usb host controller->usb device
+	void				*hcpriv;			//提供给HCD
+	struct ep_device		*ep_dev;	/* For sysfs info */	//提供给sysfs
 
 	unsigned char *extra;   /* Extra descriptors */
 	int extralen;
@@ -75,12 +75,12 @@ struct usb_host_endpoint {
 
 /* host-side wrapper for one interface setting's parsed descriptors */
 struct usb_host_interface {
-	struct usb_interface_descriptor	desc;
+	struct usb_interface_descriptor	desc;	//usb接口描述符
 
 	/* array of desc.bNumEndpoint endpoints associated with this
 	 * interface setting.  these will be in no particular order.
 	 */
-	struct usb_host_endpoint *endpoint;
+	struct usb_host_endpoint *endpoint;		//usb端点
 
 	char *string;		/* iInterface string, if present */
 	unsigned char *extra;   /* Extra descriptors */
@@ -486,11 +486,11 @@ struct usb3_lpm_parameters {
  * usb_set_device_state().
  */
 struct usb_device {
-	int		devnum;
+	int		devnum;		//usb设备在usb总线上的一个编号
 	char		devpath[16];
 	u32		route;
-	enum usb_device_state	state;
-	enum usb_device_speed	speed;
+	enum usb_device_state	state;//设备状态
+	enum usb_device_speed	speed;//
 
 	struct usb_tt	*tt;
 	int		ttport;
