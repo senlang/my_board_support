@@ -251,20 +251,20 @@ struct usb_descriptor_header {
 /* USB_DT_DEVICE: Device descriptor */
 struct usb_device_descriptor {
 	__u8  bLength;
-	__u8  bDescriptorType;
+	__u8  bDescriptorType;	//USB_DT_DEVICE
 
-	__le16 bcdUSB;
+	__le16 bcdUSB;			//usb设备在spec中的版本号，高速设备0x0200
 	__u8  bDeviceClass;
 	__u8  bDeviceSubClass;
 	__u8  bDeviceProtocol;
-	__u8  bMaxPacketSize0;
-	__le16 idVendor;
-	__le16 idProduct;
-	__le16 bcdDevice;
-	__u8  iManufacturer;
+	__u8  bMaxPacketSize0;	//端点0一次可以处理的最大长度
+	__le16 idVendor;		//厂商ID
+	__le16 idProduct;		//
+	__le16 bcdDevice;		//设备版本
+	__u8  iManufacturer;	//
 	__u8  iProduct;
 	__u8  iSerialNumber;
-	__u8  bNumConfigurations;
+	__u8  bNumConfigurations;//设备当前模式下支持的配置数目
 } __attribute__ ((packed));
 
 #define USB_DT_DEVICE_SIZE		18
@@ -307,12 +307,12 @@ struct usb_device_descriptor {
  */
 struct usb_config_descriptor {
 	__u8  bLength;
-	__u8  bDescriptorType;
+	__u8  bDescriptorType;		//
 
-	__le16 wTotalLength;
-	__u8  bNumInterfaces;
-	__u8  bConfigurationValue;
-	__u8  iConfiguration;
+	__le16 wTotalLength;		//使用GET_DESCRIPTOR获取到的描述符总长度，包括设备描述符、配置描述符、接口描述符、端点描述符、vender和class等
+	__u8  bNumInterfaces;		//设备支持的接口数目
+	__u8  bConfigurationValue;	//使用SET_CONFIGURATION来改变正在被使用的USB设置，bConfigurationValue就指明将要激活的配置
+	__u8  iConfiguration;		//描述配置信息的字符串描述索引值
 	__u8  bmAttributes;
 	__u8  bMaxPower;
 } __attribute__ ((packed));

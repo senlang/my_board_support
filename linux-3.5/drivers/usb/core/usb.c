@@ -366,6 +366,7 @@ static unsigned usb_bus_is_wusb(struct usb_bus *bus)
  *
  * This call may not be used in a non-sleeping context.
  */
+//usb设备构造函数，parent设备连接的hub，bus设备连接的总线，port1设备连接的端口
 struct usb_device *usb_alloc_dev(struct usb_device *parent,
 				 struct usb_bus *bus, unsigned port1)
 {
@@ -1016,25 +1017,25 @@ static int __init usb_init(void)
 		goto out;
 
 	usb_acpi_register();
-	retval = bus_register(&usb_bus_type);
+	retval = bus_register(&usb_bus_type);		//注册usb 总线
 	if (retval)
 		goto bus_register_failed;
 	retval = bus_register_notifier(&usb_bus_type, &usb_bus_nb);
 	if (retval)
 		goto bus_notifier_failed;
-	retval = usb_major_init();
+	retval = usb_major_init();					//注册usb字符设备
 	if (retval)
 		goto major_init_failed;
-	retval = usb_register(&usbfs_driver);
+	retval = usb_register(&usbfs_driver);		//注册usbfs驱动
 	if (retval)
 		goto driver_register_failed;
 	retval = usb_devio_init();
 	if (retval)
 		goto usb_devio_init_failed;
-	retval = usb_hub_init();
+	retval = usb_hub_init();					//usb hub init
 	if (retval)
 		goto hub_init_failed;
-	retval = usb_register_device_driver(&usb_generic_driver, THIS_MODULE);
+	retval = usb_register_device_driver(&usb_generic_driver, THIS_MODULE);	//注册usb 设备驱动
 	if (!retval)
 		goto out;
 
