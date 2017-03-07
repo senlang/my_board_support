@@ -406,6 +406,7 @@ skip_to_next_interface_descriptor:
 	return buffer - buffer0 + i;
 }
 
+//ÃèÊö·û½âÎö,configure descriptor->interface descriptor->endpoint descriptor
 static int usb_parse_configuration(struct usb_device *dev, int cfgidx,
     struct usb_host_config *config, unsigned char *buffer, int size)
 {
