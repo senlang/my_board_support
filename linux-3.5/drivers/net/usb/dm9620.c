@@ -145,7 +145,7 @@ __setup("ethmac=", dm9620_set_mac);
 
 static int dm_read(struct usbnet *dev, u8 reg, u16 length, void *data)
 {
-	//dm9620_print(dev, "dm_read() reg=0x%02x length=%d\n", reg, length);
+	dm9620_print(dev, "dm_read() reg=0x%02x length=%d\n", reg, length);
 	// usb_control_msg V.S. usb_submit_urb
 	// USB_CTRL_SET_TIMEOUT V.S. USB_CTRL_GET_TIMEOUT
 	return usb_control_msg(dev->udev,
@@ -168,7 +168,7 @@ static int dm_read_reg(struct usbnet *dev, u8 reg, u8 *value)
 
 static int dm_write(struct usbnet *dev, u8 reg, u16 length, void *data)
 {
-	//dm9620_print(dev, "dm_write() reg=0x%02x, length=%d\n", reg, length);
+	dm9620_print(dev, "dm_write() reg=0x%02x, length=%d\n", reg, length);
 	return usb_control_msg(dev->udev,
 			usb_sndctrlpipe(dev->udev, 0),
 			DM_WRITE_REGS,
@@ -178,7 +178,7 @@ static int dm_write(struct usbnet *dev, u8 reg, u16 length, void *data)
 
 static int dm_write_reg(struct usbnet *dev, u8 reg, u8 value)
 {
-	//dm9620_print(dev , "dm_write_reg() reg=0x%02x, value=0x%02x\n", reg, value);
+	dm9620_print(dev , "dm_write_reg() reg=0x%02x, value=0x%02x\n", reg, value);
 	return usb_control_msg(dev->udev,
 			usb_sndctrlpipe(dev->udev, 0),
 			DM_WRITE_REG,
@@ -470,8 +470,8 @@ static int dm9620_mdio_read(struct net_device *netdev, int phy_id, int loc)
 
 	dm_read_shared_word(dev, phy_id, loc, &res);
 
-	//dm9620_print(dev, "dm9620_mdio_read() phy_id=0x%02x, loc=0x%02x, ret=0x%04x\n",
-	//		phy_id, loc, le16_to_cpu(res));
+	dm9620_print(dev, "dm9620_mdio_read() phy_id=0x%02x, loc=0x%02x, ret=0x%04x\n",
+			phy_id, loc, le16_to_cpu(res));
 	return le16_to_cpu(res);
 }
 
@@ -482,8 +482,8 @@ static void dm9620_mdio_write(struct net_device *netdev, int phy_id, int loc,
 	__le16 res = cpu_to_le16(val);
 	int mdio_val;
 
-	//dm9620_print(dev, "dm9620_mdio_write() phy_id=0x%02x, loc=0x%02x, val=0x%04x\n",
-	//		phy_id, loc, val);
+	dm9620_print(dev, "dm9620_mdio_write() phy_id=0x%02x, loc=0x%02x, val=0x%04x\n",
+			phy_id, loc, val);
 
 	dm_write_shared_word(dev, phy_id, loc, res);
 	mdelay(1);

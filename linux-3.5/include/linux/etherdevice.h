@@ -132,9 +132,10 @@ static inline bool is_valid_ether_addr(const u8 *addr)
  */
 static inline void random_ether_addr(u8 *addr)
 {
+	/* 利用内核随机数生成器生成一个随机数：注意内核随机数生成器生成的随机数不能应用与安全算法方面 */
 	get_random_bytes (addr, ETH_ALEN);
-	addr [0] &= 0xfe;	/* clear multicast bit */
-	addr [0] |= 0x02;	/* set local assignment bit (IEEE802) */
+	addr [0] &= 0xfe;	/* clear multicast bit */ /* 去掉广播地址 */
+	addr [0] |= 0x02;	/* set local assignment bit (IEEE802) *//*设置本地地址(IEEE802) */
 }
 
 /**

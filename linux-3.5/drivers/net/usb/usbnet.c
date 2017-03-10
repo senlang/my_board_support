@@ -1341,11 +1341,11 @@ static struct device_type wwan_type = {
 int
 usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 {
-	struct usbnet			*dev;
-	struct net_device		*net;
+	struct usbnet			*dev;	/* 私有数据结构，作为net设备与usb设备之间的关联表*/
+	struct net_device		*net; 	/* 网络设备 */
 	struct usb_host_interface	*interface;
 	struct driver_info		*info;
-	struct usb_device		*xdev;
+	struct usb_device		*xdev;	/* usb设备*/
 	int				status;
 	const char			*name;
 	struct usb_driver 	*driver = to_usb_driver(udev->dev.driver);
@@ -1372,6 +1372,7 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 
 	status = -ENOMEM;
 
+	/* 创建网络设备，网络设备的私有数据区保存的是usbnet信息。为什么要这么做？目的是*在发送数据时能够找到相关的usb设备*/
 	// set up our own records
 	net = alloc_etherdev(sizeof(*dev));
 	if (!net)
@@ -1379,9 +1380,10 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 
 	/* netdev_printk() needs this so do it as early as possible */
 	SET_NETDEV_DEV(net, &udev->dev);
-
-	dev = netdev_priv(net);
-	dev->udev = xdev;
+	
+	/* 设置网络设备参数 */
+	dev = netdev_priv(net);/*struct usbnet *dev 的分配紧接着struct net_device *net，在alloc_etherdev中实现，即net+dev*/
+	dev->udev = xdev;	/* 这里就是建立了net-?usb的关联 */
 	dev->intf = udev;
 	dev->driver_info = info;
 	dev->driver_name = name;
@@ -1391,18 +1393,18 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 	skb_queue_head_init (&dev->txq);
 	skb_queue_head_init (&dev->done);
 	skb_queue_head_init(&dev->rxq_pause);
-	dev->bh.func = usbnet_bh;
+	dev->bh.func = usbnet_bh;/* 完成例程 */
 	dev->bh.data = (unsigned long) dev;
 	INIT_WORK (&dev->kevent, kevent);
 	init_usb_anchor(&dev->deferred);
-	dev->delay.function = usbnet_bh;
+	dev->delay.function = usbnet_bh;/* 完成例程 */
 	dev->delay.data = (unsigned long) dev;
 	init_timer (&dev->delay);
 	mutex_init (&dev->phy_mutex);
 
-	dev->net = net;
-	strcpy (net->name, "usb%d");
-	memcpy (net->dev_addr, node_id, sizeof node_id);
+	dev->net = net;/* usbnet中保存了网络设备 */
+	strcpy (net->name, "usb%d");/* 网络设备名称从ethxxx改变为usbxxx*/
+	memcpy (net->dev_addr, node_id, sizeof node_id);/* 设置网络mac地址 */
 
 	/* rx and tx sides can use different message sizes;
 	 * bind() should set rx_urb_size in that case.
@@ -1414,11 +1416,12 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 	if (dma_supported (&udev->dev, DMA_BIT_MASK(64)))
 		net->features |= NETIF_F_HIGHDMA;
 #endif
-
+	/*netdevice ops*/
 	net->netdev_ops = &usbnet_netdev_ops;
 	net->watchdog_timeo = TX_TIMEOUT_JIFFIES;
 	net->ethtool_ops = &usbnet_ethtool_ops;
 
+	/* 设置usbnet，配置net和usb设备的联系接口 */
 	// allow device-specific bind/init procedures
 	// NOTE net->name still not usable ...
 	if (info->bind) {
@@ -1456,6 +1459,8 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 			status = 0;
 
 	}
+
+	/*创建并填充 interrupt urb，在usbnet_open阶段submit*/
 	if (status >= 0 && dev->status)
 		status = init_status (dev, udev);
 	if (status < 0)
@@ -1469,7 +1474,8 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 		SET_NETDEV_DEVTYPE(net, &wlan_type);
 	if ((dev->driver_info->flags & FLAG_WWAN) != 0)
 		SET_NETDEV_DEVTYPE(net, &wwan_type);
-
+	
+	/* 注册网络设备 */
 	status = register_netdev (net);
 	if (status)
 		goto out4;
@@ -1480,9 +1486,14 @@ usbnet_probe (struct usb_interface *udev, const struct usb_device_id *prod)
 		   dev->driver_info->description,
 		   net->dev_addr);
 
+
+    /* 建立usb->usbnet的联系
+    * 这里可以看出，net->usbnet<-usb，usbnet就是usb设备和net设备之间的纽带
+    */
 	// ok, it's ready to go.
 	usb_set_intfdata (udev, dev);
-
+	
+	/* 启动网络设备 */
 	netif_device_attach (net);
 
 	if (dev->driver_info->flags & FLAG_LINK_INTR)
@@ -1599,7 +1610,8 @@ static int __init usbnet_init(void)
 	/* Compiler should optimize this out. */
 	BUILD_BUG_ON(
 		FIELD_SIZEOF(struct sk_buff, cb) < sizeof(struct skb_data));
-
+	
+	/* 生成一个网络mac地址 。node_id是全局变量，保存生成后的网络mac地址*/
 	random_ether_addr(node_id);
 	return 0;
 }
