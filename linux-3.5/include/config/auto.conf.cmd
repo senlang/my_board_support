@@ -407,7 +407,6 @@ deps_config := \
 	drivers/i2c/algos/Kconfig \
 	drivers/i2c/muxes/Kconfig \
 	drivers/i2c/Kconfig \
-	drivers/char/tiny4412_leds_demo/Kconfig \
 	drivers/s390/char/Kconfig \
 	drivers/char/tpm/Kconfig \
 	drivers/char/pcmcia/Kconfig \

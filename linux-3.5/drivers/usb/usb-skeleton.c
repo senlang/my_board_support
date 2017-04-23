@@ -89,9 +89,8 @@ static int skel_open(struct inode *inode, struct file *file)
 	int subminor;
 	int retval = 0;
 
-	subminor = iminor(inode);//获得次设备号
-	
-	//根据usb_driver和次设备号获取设备的接口
+	subminor = iminor(inode);
+
 	interface = usb_find_interface(&skel_driver, subminor);
 	if (!interface) {
 		pr_err("%s - error, can't find device for minor %d\n",
@@ -100,7 +99,7 @@ static int skel_open(struct inode *inode, struct file *file)
 		goto exit;
 	}
 
-	dev = usb_get_intfdata(interface);//获取接口的私有数据usb_skel
+	dev = usb_get_intfdata(interface);
 	if (!dev) {
 		retval = -ENODEV;
 		goto exit;
@@ -118,7 +117,7 @@ static int skel_open(struct inode *inode, struct file *file)
 		goto out_err;
 
 	/* save our object in the file's private structure */
-	file->private_data = dev;	//将usb_skel设置为文件的私有数据
+	file->private_data = dev;
 	mutex_unlock(&dev->io_mutex);
 
 exit:
@@ -176,7 +175,7 @@ static void skel_read_bulk_callback(struct urb *urb)
 
 	spin_lock(&dev->err_lock);
 	/* sync/async unlink faults aren't errors */
-	if (urb->status) {//根据返回状态判断是否出错
+	if (urb->status) {
 		if (!(urb->status == -ENOENT ||
 		    urb->status == -ECONNRESET ||
 		    urb->status == -ESHUTDOWN))
@@ -186,19 +185,18 @@ static void skel_read_bulk_callback(struct urb *urb)
 
 		dev->errors = urb->status;
 	} else {
-		dev->bulk_in_filled = urb->actual_length;//记录缓冲区的大小
+		dev->bulk_in_filled = urb->actual_length;
 	}
-	dev->ongoing_read = 0;//已经读取数据完毕
+	dev->ongoing_read = 0;
 	spin_unlock(&dev->err_lock);
 
-	complete(&dev->bulk_in_completion);//唤醒skel_read函数
+	complete(&dev->bulk_in_completion);
 }
 
 static int skel_do_read_io(struct usb_skel *dev, size_t count)
 {
 	int rv;
-	
-	//填充urb
+
 	/* prepare a read */
 	usb_fill_bulk_urb(dev->bulk_in_urb,
 			dev->udev,
@@ -210,11 +208,11 @@ static int skel_do_read_io(struct usb_skel *dev, size_t count)
 			dev);
 	/* tell everybody to leave the URB alone */
 	spin_lock_irq(&dev->err_lock);
-	dev->ongoing_read = 1;//标志正在读取数据中
+	dev->ongoing_read = 1;
 	spin_unlock_irq(&dev->err_lock);
 
 	/* do it */
-	rv = usb_submit_urb(dev->bulk_in_urb, GFP_KERNEL);//提交urb
+	rv = usb_submit_urb(dev->bulk_in_urb, GFP_KERNEL);
 	if (rv < 0) {
 		dev_err(&dev->interface->dev,
 			"%s - failed submitting read urb, error %d\n",
@@ -236,14 +234,14 @@ static ssize_t skel_read(struct file *file, char *buffer, size_t count,
 	int rv;
 	bool ongoing_io;
 
-	dev = file->private_data;//获得文件私有数据
+	dev = file->private_data;
 
 	/* if we cannot read at all, return EOF */
-	if (!dev->bulk_in_urb || !count) //正在写的时候禁止读操作
+	if (!dev->bulk_in_urb || !count)
 		return 0;
 
 	/* no concurrent readers */
-	rv = mutex_lock_interruptible(&dev->io_mutex); //获得锁
+	rv = mutex_lock_interruptible(&dev->io_mutex);
 	if (rv < 0)
 		return rv;
 
@@ -258,9 +256,9 @@ retry:
 	ongoing_io = dev->ongoing_read;
 	spin_unlock_irq(&dev->err_lock);
 
-	if (ongoing_io) {//USB核正在读取数据中，数据没准备好
+	if (ongoing_io) {
 		/* nonblocking IO shall not wait */
-		if (file->f_flags & O_NONBLOCK) {//如果为非阻塞，则结束
+		if (file->f_flags & O_NONBLOCK) {
 			rv = -EAGAIN;
 			goto exit;
 		}
@@ -268,25 +266,25 @@ retry:
 		 * IO may take forever
 		 * hence wait in an interruptible state
 		 */
-		rv = wait_for_completion_interruptible(&dev->bulk_in_completion); //等待
+		rv = wait_for_completion_interruptible(&dev->bulk_in_completion);
 		if (rv < 0)
 			goto exit;
 		/*
 		 * by waiting we also semiprocessed the urb
 		 * we must finish now
 		 */
-		dev->bulk_in_copied = 0;//拷贝到用户空间操作已成功
-		dev->processed_urb = 1; //目前已处理好urb
+		dev->bulk_in_copied = 0;
+		dev->processed_urb = 1;
 	}
 
-	if (!dev->processed_urb) {//目前还没已处理好urb
+	if (!dev->processed_urb) {
 		/*
 		 * the URB hasn't been processed
 		 * do it now
 		 */
-		wait_for_completion(&dev->bulk_in_completion);//等待完成
-		dev->bulk_in_copied = 0;//拷贝到用户空间操作已成功
-		dev->processed_urb = 1;//目前已处理好urb
+		wait_for_completion(&dev->bulk_in_completion);
+		dev->bulk_in_copied = 0;
+		dev->processed_urb = 1;
 	}
 
 	/* errors must be reported */
@@ -308,18 +306,16 @@ retry:
 	 */
 
 	if (dev->bulk_in_filled) {
-		//缓冲区有内容
-		//可读数据大小为缓冲区内容减去已经拷贝到用户空间的数据大小
 		/* we had read data */
 		size_t available = dev->bulk_in_filled - dev->bulk_in_copied;
-		size_t chunk = min(available, count);//真正读取数据大小
+		size_t chunk = min(available, count);
 
 		if (!available) {
 			/*
 			 * all data has been used
 			 * actual IO needs to be done
 			 */
-			rv = skel_do_read_io(dev, count);//没可读数据则调用IO操作
+			rv = skel_do_read_io(dev, count);
 			if (rv < 0)
 				goto exit;
 			else
@@ -329,7 +325,7 @@ retry:
 		 * data is available
 		 * chunk tells us how much shall be copied
 		 */
-		//拷贝缓冲区数据到用户空间
+
 		if (copy_to_user(buffer,
 				 dev->bulk_in_buffer + dev->bulk_in_copied,
 				 chunk))
@@ -337,17 +333,17 @@ retry:
 		else
 			rv = chunk;
 
-		dev->bulk_in_copied += chunk;//目前拷贝完成的数据大小
+		dev->bulk_in_copied += chunk;
 
 		/*
 		 * if we are asked for more than we have,
 		 * we start IO but don't wait
 		 */
-		if (available < count)//剩下可用数据小于用户需要的数据
-			skel_do_read_io(dev, count - chunk);//调用IO操作
+		if (available < count)
+			skel_do_read_io(dev, count - chunk);
 	} else {
 		/* no data in the buffer */
-		rv = skel_do_read_io(dev, count);//缓冲区没数据则调用IO操作
+		rv = skel_do_read_io(dev, count);
 		if (rv < 0)
 			goto exit;
 		else if (!(file->f_flags & O_NONBLOCK))
@@ -381,7 +377,7 @@ static void skel_write_bulk_callback(struct urb *urb)
 
 	/* free up our allocated buffer */
 	usb_free_coherent(urb->dev, urb->transfer_buffer_length,
-			  urb->transfer_buffer, urb->transfer_dma);//释放urb空间
+			  urb->transfer_buffer, urb->transfer_dma);
 	up(&dev->limit_sem);
 }
 
@@ -392,9 +388,9 @@ static ssize_t skel_write(struct file *file, const char *user_buffer,
 	int retval = 0;
 	struct urb *urb = NULL;
 	char *buf = NULL;
-	size_t writesize = min(count, (size_t)MAX_TRANSFER);//待写数据大小
+	size_t writesize = min(count, (size_t)MAX_TRANSFER);
 
-	dev = file->private_data;//获取文件的私有数据
+	dev = file->private_data;
 
 	/* verify that we actually have some data to write */
 	if (count == 0)
@@ -404,8 +400,8 @@ static ssize_t skel_write(struct file *file, const char *user_buffer,
 	 * limit the number of URBs in flight to stop a user from using up all
 	 * RAM
 	 */
-	if (!(file->f_flags & O_NONBLOCK)) {//如果文件采用非阻塞方式
-		if (down_interruptible(&dev->limit_sem)) {//获取限制读的次数的信号量
+	if (!(file->f_flags & O_NONBLOCK)) {
+		if (down_interruptible(&dev->limit_sem)) {
 			retval = -ERESTARTSYS;
 			goto exit;
 		}
@@ -416,7 +412,7 @@ static ssize_t skel_write(struct file *file, const char *user_buffer,
 		}
 	}
 
-	spin_lock_irq(&dev->err_lock);//关中断
+	spin_lock_irq(&dev->err_lock);
 	retval = dev->errors;
 	if (retval < 0) {
 		/* any error is reported once */
@@ -424,25 +420,25 @@ static ssize_t skel_write(struct file *file, const char *user_buffer,
 		/* to preserve notifications about reset */
 		retval = (retval == -EPIPE) ? retval : -EIO;
 	}
-	spin_unlock_irq(&dev->err_lock);//开中断
+	spin_unlock_irq(&dev->err_lock);
 	if (retval < 0)
 		goto error;
 
 	/* create a urb, and a buffer for it, and copy the data to the urb */
-	urb = usb_alloc_urb(0, GFP_KERNEL); //分配urb
+	urb = usb_alloc_urb(0, GFP_KERNEL);
 	if (!urb) {
 		retval = -ENOMEM;
 		goto error;
 	}
 
 	buf = usb_alloc_coherent(dev->udev, writesize, GFP_KERNEL,
-				 &urb->transfer_dma); //分配写缓冲区
+				 &urb->transfer_dma);
 	if (!buf) {
 		retval = -ENOMEM;
 		goto error;
 	}
 
-	if (copy_from_user(buf, user_buffer, writesize)) {//将用户空间数据拷贝到缓冲区
+	if (copy_from_user(buf, user_buffer, writesize)) {
 		retval = -EFAULT;
 		goto error;
 	}
@@ -458,12 +454,12 @@ static ssize_t skel_write(struct file *file, const char *user_buffer,
 	/* initialize the urb properly */
 	usb_fill_bulk_urb(urb, dev->udev,
 			  usb_sndbulkpipe(dev->udev, dev->bulk_out_endpointAddr),
-			  buf, writesize, skel_write_bulk_callback, dev);//填充urb
-	urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;//urb->transfer_dma有效
+			  buf, writesize, skel_write_bulk_callback, dev);
+	urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 	usb_anchor_urb(urb, &dev->submitted);
 
 	/* send the data out the bulk port */
-	retval = usb_submit_urb(urb, GFP_KERNEL);//提交urb
+	retval = usb_submit_urb(urb, GFP_KERNEL);
 	mutex_unlock(&dev->io_mutex);
 	if (retval) {
 		dev_err(&dev->interface->dev,
@@ -517,48 +513,48 @@ static struct usb_class_driver skel_class = {
 static int skel_probe(struct usb_interface *interface,
 		      const struct usb_device_id *id)
 {
-	struct usb_skel *dev;//特定设备结构体
-	struct usb_host_interface *iface_desc;//设置结构体
-	struct usb_endpoint_descriptor *endpoint; //端点描述符
+	struct usb_skel *dev;
+	struct usb_host_interface *iface_desc;
+	struct usb_endpoint_descriptor *endpoint;
 	size_t buffer_size;
 	int i;
 	int retval = -ENOMEM;
 
 	/* allocate memory for our device state and initialize it */
-	dev = kzalloc(sizeof(*dev), GFP_KERNEL);//分配内存
+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
 	if (!dev) {
 		dev_err(&interface->dev, "Out of memory\n");
 		goto error;
 	}
-	kref_init(&dev->kref);//初始化引用
-	sema_init(&dev->limit_sem, WRITES_IN_FLIGHT);//初始化信号量
-	mutex_init(&dev->io_mutex);//初始化互斥锁
-	spin_lock_init(&dev->err_lock);//初始化信号量
+	kref_init(&dev->kref);
+	sema_init(&dev->limit_sem, WRITES_IN_FLIGHT);
+	mutex_init(&dev->io_mutex);
+	spin_lock_init(&dev->err_lock);
 	init_usb_anchor(&dev->submitted);
-	init_completion(&dev->bulk_in_completion);//初始化完成量
+	init_completion(&dev->bulk_in_completion);
 
-	dev->udev = usb_get_dev(interface_to_usbdev(interface));//获取usb_device结构体
-	dev->interface = interface;//获取usb_interface结构体
+	dev->udev = usb_get_dev(interface_to_usbdev(interface));
+	dev->interface = interface;
 
 	/* set up the endpoint information */
 	/* use only the first bulk-in and bulk-out endpoints */
-	iface_desc = interface->cur_altsetting;//由接口获取当前设置
-	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {//根据端点个数逐一扫描端点
-		endpoint = &iface_desc->endpoint[i].desc;//由设置获取端点描述符
+	iface_desc = interface->cur_altsetting;
+	for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
+		endpoint = &iface_desc->endpoint[i].desc;
 
 		if (!dev->bulk_in_endpointAddr &&
-		    usb_endpoint_is_bulk_in(endpoint)) {//如果该端点为批量输入端点
+		    usb_endpoint_is_bulk_in(endpoint)) {
 			/* we found a bulk in endpoint */
-			buffer_size = usb_endpoint_maxp(endpoint);//缓冲大小
-			dev->bulk_in_size = buffer_size; //缓冲大小
-			dev->bulk_in_endpointAddr = endpoint->bEndpointAddress;//端点地址
-			dev->bulk_in_buffer = kmalloc(buffer_size, GFP_KERNEL);//缓冲区
+			buffer_size = usb_endpoint_maxp(endpoint);
+			dev->bulk_in_size = buffer_size;
+			dev->bulk_in_endpointAddr = endpoint->bEndpointAddress;
+			dev->bulk_in_buffer = kmalloc(buffer_size, GFP_KERNEL);
 			if (!dev->bulk_in_buffer) {
 				dev_err(&interface->dev,
 					"Could not allocate bulk_in_buffer\n");
 				goto error;
 			}
-			dev->bulk_in_urb = usb_alloc_urb(0, GFP_KERNEL);//分配urb空间
+			dev->bulk_in_urb = usb_alloc_urb(0, GFP_KERNEL);
 			if (!dev->bulk_in_urb) {
 				dev_err(&interface->dev,
 					"Could not allocate bulk_in_urb\n");
@@ -567,9 +563,9 @@ static int skel_probe(struct usb_interface *interface,
 		}
 
 		if (!dev->bulk_out_endpointAddr &&
-		    usb_endpoint_is_bulk_out(endpoint)) {//如果该端点为批量输出端点
+		    usb_endpoint_is_bulk_out(endpoint)) {
 			/* we found a bulk out endpoint */
-			dev->bulk_out_endpointAddr = endpoint->bEndpointAddress;//端点地址
+			dev->bulk_out_endpointAddr = endpoint->bEndpointAddress;
 		}
 	}
 	if (!(dev->bulk_in_endpointAddr && dev->bulk_out_endpointAddr)) {
@@ -579,10 +575,10 @@ static int skel_probe(struct usb_interface *interface,
 	}
 
 	/* save our data pointer in this interface device */
-	usb_set_intfdata(interface, dev);//将特定设备结构体设置为接口的私有数据
+	usb_set_intfdata(interface, dev);
 
 	/* we can register the device now, as it is ready */
-	retval = usb_register_dev(interface, &skel_class);//注册USB设备
+	retval = usb_register_dev(interface, &skel_class);
 	if (retval) {
 		/* something prevented us from registering this driver */
 		dev_err(&interface->dev,
@@ -607,13 +603,13 @@ error:
 static void skel_disconnect(struct usb_interface *interface)
 {
 	struct usb_skel *dev;
-	int minor = interface->minor; //获得接口的次设备号
+	int minor = interface->minor;
 
-	dev = usb_get_intfdata(interface);//获取接口的私有数据
-	usb_set_intfdata(interface, NULL); //设置接口的私有数据为空
+	dev = usb_get_intfdata(interface);
+	usb_set_intfdata(interface, NULL);
 
 	/* give back our minor */
-	usb_deregister_dev(interface, &skel_class);//注销USB设备
+	usb_deregister_dev(interface, &skel_class);
 
 	/* prevent more I/O from starting */
 	mutex_lock(&dev->io_mutex);

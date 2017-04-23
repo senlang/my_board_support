@@ -71,4 +71,4 @@ obj-$(CONFIG_TINY4412_BUTTONS)	+= tiny4412_buttons.o
 obj-$(CONFIG_TINY4412_BUZZER)	+= tiny4412_pwm.o
 obj-$(CONFIG_TINY4412_BACKLIGHT)+= tiny4412_backlight.o
 obj-$(CONFIG_TINY4412_ADC)		+= tiny4412_adc.o
-obj-$(CONFIG_LED_DEMO)		+= tiny4412_leds_demo/
+

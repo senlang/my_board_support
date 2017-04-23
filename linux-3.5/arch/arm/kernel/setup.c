@@ -794,14 +794,9 @@ static struct init_tags {
 
 static int __init customize_machine(void)
 {
-	printk("%s[%d] Start!\n",__FUNCTION__,__LINE__);
-
 	/* customizes platform devices, or adds new ones */
 	if (machine_desc->init_machine)
 		machine_desc->init_machine();
-
-	
-	printk("%s[%d] End!\n",__FUNCTION__,__LINE__);
 	return 0;
 }
 arch_initcall(customize_machine);

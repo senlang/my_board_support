@@ -112,7 +112,7 @@ extern struct usb_device_driver usb_generic_driver;
 
 static inline int is_usb_device(const struct device *dev)
 {
-	return dev->type == &usb_device_type;	//在hub中枚举时赋值
+	return dev->type == &usb_device_type;
 }
 
 static inline int is_usb_interface(const struct device *dev)

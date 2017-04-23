@@ -1206,8 +1206,6 @@ static int __init s3c64xx_spi_probe(struct platform_device *pdev)
 	int ret, irq;
 	char clk_name[16];
 
-	printk("%s[%d] Start!\n",__FUNCTION__,__LINE__);
-	
 	if (!sci && pdev->dev.of_node) {
 		sci = s3c64xx_spi_parse_dt(&pdev->dev);
 		if (IS_ERR(sci))
@@ -1364,8 +1362,6 @@ static int __init s3c64xx_spi_probe(struct platform_device *pdev)
 					sdd->rx_dma.dmach, sdd->tx_dma.dmach);
 
 	pm_runtime_enable(&pdev->dev);
-	
-	printk("%s[%d] End!\n",__FUNCTION__,__LINE__);
 
 	return 0;
 
@@ -1389,8 +1385,7 @@ err1:
 err0:
 	platform_set_drvdata(pdev, NULL);
 	spi_master_put(master);
-	
-	printk("%s[%d] End!\n",__FUNCTION__,__LINE__);
+
 	return ret;
 }
 

@@ -64,9 +64,9 @@ struct ep_device;
 struct usb_host_endpoint {
 	struct usb_endpoint_descriptor		desc;
 	struct usb_ss_ep_comp_descriptor	ss_ep_comp;
-	struct list_head		urb_list;		//端点处理的urb队列,usb通讯主角，包含执行usb传输所需的所有信息，是内核对usb传输数据的封装。创建urb->usb core->usb host controller->usb device
-	void				*hcpriv;			//提供给HCD
-	struct ep_device		*ep_dev;	/* For sysfs info */	//提供给sysfs
+	struct list_head		urb_list;
+	void				*hcpriv;
+	struct ep_device		*ep_dev;	/* For sysfs info */
 
 	unsigned char *extra;   /* Extra descriptors */
 	int extralen;
@@ -75,12 +75,12 @@ struct usb_host_endpoint {
 
 /* host-side wrapper for one interface setting's parsed descriptors */
 struct usb_host_interface {
-	struct usb_interface_descriptor	desc;	//usb接口描述符
+	struct usb_interface_descriptor	desc;
 
 	/* array of desc.bNumEndpoint endpoints associated with this
 	 * interface setting.  these will be in no particular order.
 	 */
-	struct usb_host_endpoint *endpoint;		//usb端点
+	struct usb_host_endpoint *endpoint;
 
 	char *string;		/* iInterface string, if present */
 	unsigned char *extra;   /* Extra descriptors */
@@ -486,24 +486,24 @@ struct usb3_lpm_parameters {
  * usb_set_device_state().
  */
 struct usb_device {
-	int		devnum;					//usb设备在usb总线上的一个编号
+	int		devnum;
 	char		devpath[16];
 	u32		route;
-	enum usb_device_state	state;	//设备状态
-	enum usb_device_speed	speed;	//
+	enum usb_device_state	state;
+	enum usb_device_speed	speed;
 
 	struct usb_tt	*tt;
 	int		ttport;
 
-	unsigned int toggle[2];			//
+	unsigned int toggle[2];
 
-	struct usb_device *parent;		//设备父节点
-	struct usb_bus *bus;			//设备所属总线
-	struct usb_host_endpoint ep0;	//端点0，在usb_device创建时初始化
+	struct usb_device *parent;
+	struct usb_bus *bus;
+	struct usb_host_endpoint ep0;
 
-	struct device dev;				//嵌入到usb_device中的struct device dev
+	struct device dev;
 
-	struct usb_device_descriptor descriptor;	//设备描述符
+	struct usb_device_descriptor descriptor;
 	struct usb_host_bos *bos;
 	struct usb_host_config *config;
 
@@ -511,11 +511,11 @@ struct usb_device {
 	struct usb_host_endpoint *ep_in[16];
 	struct usb_host_endpoint *ep_out[16];
 
-	char **rawdescriptors;			//字符指针数组，数组的每一项都指向GET_DESCRIPTOR请求去获得的配置描述符获得的结果。使用GET_DESCRIPTOR会得到接口描述符、配置描述符、端点描述符
+	char **rawdescriptors;
 
 	unsigned short bus_mA;
-	u8 portnum;						//设备被哪个端口使用
-	u8 level;						//usb设备数的级联关系
+	u8 portnum;
+	u8 level;
 
 	unsigned can_submit:1;
 	unsigned persist_enabled:1;
@@ -530,17 +530,17 @@ struct usb_device {
 	int string_langid;
 
 	/* static strings from the device */
-	char *product;		//保存厂商信息
+	char *product;
 	char *manufacturer;
 	char *serial;
 
 	struct list_head filelist;
 
-	int maxchild;	//hub端口数
-	struct usb_device **children;	//hub子设备
+	int maxchild;
+	struct usb_device **children;
 
 	u32 quirks;
-	atomic_t urbnum;				//	urb number
+	atomic_t urbnum;
 
 	unsigned long active_duration;
 
@@ -917,9 +917,8 @@ struct usbdrv_wrap {
  * well as forcing all pending I/O requests to complete (by unlinking
  * them as necessary, and blocking until the unlinks complete).
  */
-//usb 接口驱动,通常所说的编写usb驱动就是usb接口驱动，以struct usb_driver结构的对象为中心，以usb 接口所提供的功能为基础建设usb驱动
 struct usb_driver {
-	const char *name;					//驱动名称，在sys/bus/usb/driver目录名称
+	const char *name;
 
 	int (*probe) (struct usb_interface *intf,
 		      const struct usb_device_id *id);
@@ -966,7 +965,6 @@ struct usb_driver {
  *
  * USB drivers must provide all the fields listed above except drvwrap.
  */
-//usb 设备驱动
 struct usb_device_driver {
 	const char *name;
 

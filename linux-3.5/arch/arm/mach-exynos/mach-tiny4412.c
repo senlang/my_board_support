@@ -1580,7 +1580,6 @@ static void __init exynos_bootdev_init(void)
 {
 	u32 capboot = MMC_CAP2_BOOT_DEVICE;
 
-	printk("S5P_INFORM3= 0x%08x\n", S5P_INFORM3);
 	exynos_boot_dev = __raw_readl(S5P_INFORM3);
 
 	if (is_bootfrom_emmc()) {
@@ -2185,8 +2184,6 @@ static void __init smdk4x12_machine_init(void)
 	ft5x0x_pdata.screen_max_y = lcd->height;
 #endif
 
-	printk("%s[%d] Start!\n",__FUNCTION__,__LINE__);
-
 	exynos_bootdev_init();
 	tiny4412_hwrev_init();
 
@@ -2325,8 +2322,6 @@ static void __init smdk4x12_machine_init(void)
 	ppmu_init(&exynos_ppmu[PPMU_CPU], &exynos4_busfreq.dev);
 #endif
 	set_tmu_platdata();
-
-	printk("%s[%d] End!\n",__FUNCTION__,__LINE__);
 }
 
 MACHINE_START(TINY4412, "TINY4412")

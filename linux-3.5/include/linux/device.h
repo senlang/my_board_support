@@ -973,7 +973,6 @@ do {									\
  */
 
 #define dev_info(dev, fmt, arg...) _dev_info(dev, fmt, ##arg)
-#define DEBUG    1 
 
 #if defined(CONFIG_DYNAMIC_DEBUG)
 #define dev_dbg(dev, format, ...)		     \

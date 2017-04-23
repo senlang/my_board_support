@@ -1044,8 +1044,8 @@ static int s3c_fb_setcolreg(unsigned regno,
 	struct s3c_fb *sfb = win->parent;
 	unsigned int val;
 
-	//dev_dbg(sfb->dev, "%s: win %d: %d => rgb=%d/%d/%d\n",
-	//	__func__, win->index, regno, red, green, blue);
+	dev_dbg(sfb->dev, "%s: win %d: %d => rgb=%d/%d/%d\n",
+		__func__, win->index, regno, red, green, blue);
 
 
 	switch (info->fix.visual) {

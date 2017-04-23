@@ -87,15 +87,13 @@ static int usb_internal_control_msg(struct usb_device *usb_dev,
 	int retv;
 	int length;
 
-	urb = usb_alloc_urb(0, GFP_NOIO);//创建一个usb，struct urb只能通过该函数创建
+	urb = usb_alloc_urb(0, GFP_NOIO);
 	if (!urb)
 		return -ENOMEM;
 
-	//在使用urb之前对其进行初始化操作
 	usb_fill_control_urb(urb, usb_dev, pipe, (unsigned char *)cmd, data,
 			     len, usb_api_blocking_completion, NULL);
 
-	//将urb提交给usb core，以便分配给特定的主机控制器驱动进行处理
 	retv = usb_start_wait_urb(urb, timeout, &length);
 	if (retv < 0)
 		return retv;

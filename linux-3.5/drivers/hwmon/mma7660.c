@@ -514,8 +514,6 @@ static struct i2c_driver i2c_mma7660_driver = {
 static int __init init_mma7660(void)
 {
 	int ret;
-	
-	//printk("langsen debug:%s[%d]\n",__FUNCTION__,__LINE__);
 
 	ret = i2c_add_driver(&i2c_mma7660_driver);
 	printk(KERN_INFO "MMA7660 sensor driver registered.\n");

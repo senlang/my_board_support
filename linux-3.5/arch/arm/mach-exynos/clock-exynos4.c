@@ -2236,7 +2236,6 @@ void __init exynos4_register_clocks(void)
 {
 	int ptr;
 
-	printk("%s[%d]Enter!!!\n", __FUNCTION__, __LINE__);
 	s3c24xx_register_clocks(exynos4_clks, ARRAY_SIZE(exynos4_clks));
 
 	for (ptr = 0; ptr < ARRAY_SIZE(exynos4_sysclks); ptr++)
@@ -2267,6 +2266,4 @@ void __init exynos4_register_clocks(void)
 	s3c24xx_register_clock(&dummy_apb_pclk);
 
 	s3c_pwmclk_init();
-	
-	printk("%s[%d]Exit!!!\n", __FUNCTION__, __LINE__);
 }
